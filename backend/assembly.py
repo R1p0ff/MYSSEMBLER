@@ -15,7 +15,6 @@ def format_code_line(code_line):
 def label_cleaner(label):
     label = label.replace(":", "")
     label = label.replace(" ", "")
-#    print(label)
     return label
 
 
