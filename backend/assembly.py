@@ -131,7 +131,6 @@ def operation(code_line, code_labels):
 
 
 
-#article = re.sub(r'(?is)</html>.+', '</html>', article)
 def opcode_translation(formated_operation):
     return opcodes_assembly[formated_operation]
 
