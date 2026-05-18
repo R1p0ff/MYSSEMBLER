@@ -1,0 +1,184 @@
+@font-face {
+    font-family: 'Ac437 PhoenixEGA 8x14'; /* El nombre que tú quieras darle para usarlo en el CSS */
+    src: url('fonts/Ac437_PhoenixEGA_8x14.ttf'); /* Nombre exacto del archivo que guardaste */
+}
+
+QWidget{
+    background: #1a1c1e;
+}
+
+
+
+QLabel {
+    color: #ffffff;            /* Verde terminal clásico (o #ffffff si prefieres blanco) */
+    font-family: "Courier New", "Consolas", "Monospace"; /* Fuentes fijas explícitas */
+    font-size: 11px;           /* Un tamaño pequeño evita que el ASCII se desborde */
+    line-height: 100%;         /* Mantiene el espaciado vertical compacto */
+    font-weight: bold;
+    /* LAS DOS PROPIEDADES CRÍTICAS PARA ARTE ASCII: */
+    qproperty-alignment: 'AlignLeft | AlignVCenter'; /* Alinea a la izquierda para que no se desfase */
+    qproperty-wordWrap: false; /* Evita que una línea larga se baje a la fuerza y rompa el dibujo */
+}
+#title {
+    color: #2cde85;
+    font-size: 20px;
+
+}
+
+
+QPushButton{
+    background-color: #26a164;
+    color: #1a1c1e;
+    border-radius: 5px;
+    font: bold 14px;
+    padding: 6px;
+
+    min-height: 40px;
+    max-height: 50px;
+    max-width: 200px;
+    
+    font-size: 30px;
+    font-family: monospace;
+
+}
+QPushButton:hover{
+    background-color: #2cde85;
+}
+QPushButton:pressed{  
+	background-color: #18673f;
+    color: #b0b0b0;
+
+}
+
+#btnImportFile{
+    margin-right: 50px;
+    max-width: 220px;
+
+}
+#btnAssemble{
+    width: 200px;
+
+}
+
+
+
+QPlainTextEdit {
+    background-color: #131416;
+    color : #ffffff;
+    border-color: #26a164;
+    padding: 10px;
+    
+    min-height: 40px;
+    max-height: 800px;
+
+    font-family: 'Ac437 PhoenixEGA 8x14', monospace;
+    font-size: 40px;
+}
+#consolaLog {
+    font-size: 12px;                 /* Letra un poco más pequeña para los logs */
+    border: 1px solid #2cde85;
+
+    min-height: 40px;
+    max-height: 100px;
+    font-size: 20px;                 /* Letra un poco más pequeña para los logs */
+    
+    /* Si quieres cambiar el comportamiento de las propiedades que vimos antes: */
+    qproperty-undoRedoEnabled: false; /* Desactivas Ctrl+Z solo en los logs */
+}
+
+
+
+/* ScrollBar */
+QScrollBar:vertical {
+    background-color: #18673f;
+    width: 14px;
+    margin: 0px 0px 0px 0px;
+    border: none;
+}
+QScrollBar::handle:vertical {
+    background-color: #26a164;
+    min-height: 20px;
+    border-radius: 2px;
+    margin: 2px;
+}
+QScrollBar::handle:vertical:hover {
+    background-color: #2cde85;
+}
+QScrollBar::add-line:vertical, 
+QScrollBar::sub-line:vertical {
+    background: none;
+    height: 0px;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-page:vertical, 
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+QScrollBar:pressed{  
+	background-color: #18673f;
+}
+
+
+/* TABS */
+QTabWidget::pane {
+    background: #131416;         
+    border: 1px solid #2cde85;   
+}
+QTabBar {
+    min-width: 400px;          
+}
+QTabBar::tab {
+    color: #b0b0b0;              
+    background: #1a1c1e;         
+    border: 1px solid #3a3d40;   
+    border-bottom-color: #2cde85; 
+    border-top-left-radius: 4px; 
+    border-top-right-radius: 4px; 
+    padding: 6px 16px;           
+    margin-bottom: -1px;         
+    font-family: 'Ac437 PhoenixEGA 8x14', monospace;
+    font-size: 16px;
+}
+QTabBar::tab:selected {
+    color: #2cde85;              
+    background: #131416;         
+    border: 1px solid #2cde85;   
+    border-bottom-color: #131416; 
+    font-weight: bold;
+}
+QTabBar::tab:hover {
+    background: #24272b;
+    color: #2cde85;              
+}
+QTabBar::tab:pressed{  
+	background-color: #18673f;
+}
+
+
+
+
+
+
+/* SELECTOR */
+QComboBox {
+    background-color: #131416;         
+    border: 1px solid #2cde85;   
+    color: #ffffff;
+    font-size: 30px;
+}
+QComboBox{
+    max-width: 500px;          
+}
+
+QComboBox:hover {
+    background: #24272b;
+    color: #2cde85;              
+}
+
+/*
+QComboBox:on, QComboBox:pressed {  
+    background-color: #18673f;
+    color: #ffffff;
+    border-color: #2cde85;
+}
+*/
