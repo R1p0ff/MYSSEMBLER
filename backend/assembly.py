@@ -1,5 +1,6 @@
 from mapas_opcodes.opcodes_assembly import opcodes_assembly
 from common_vars import *
+import tabulate
 import re
 
 
@@ -44,6 +45,7 @@ def dir_register(code_data):
     code_dir_counter = -1
     current_line = 0
     for code_line in code_data:
+        code_line = code_line.strip()
         current_line +=1
         is_line_label = (bool(re.search(assembly_labels_regex, code_line)))
         is_register_label = (bool(re.search(assembly_data_variables_regex, code_line)))
@@ -93,6 +95,7 @@ def identify_procedure(code_line, code_lenguage):
     return identified_procedure
 
 def operation(code_line, code_labels):
+    variable_labels = []
     operation, variables = format_code_line(code_line)
     variables = variables.split(",")[:max_variables[operation]]    
     if max_variables[operation] == 0:
@@ -132,6 +135,50 @@ def operation(code_line, code_labels):
 
 def opcode_translation(formated_operation):
     return opcodes_assembly[formated_operation]
+
+
+#def create_variables(code_input):
+
+def instruction(code_input):
+    labels = dir_register(code_input)
+    print(labels)
+
+    columnas = []
+    for code_line in code_input:
+        if not (code_line):
+            continue
+        procedure = identify_procedure(code_line, "ASSEMBLY")
+
+        if procedure == "Header":
+            None
+
+
+        if procedure == "Label":
+            None
+
+        if procedure == "Operation":
+            formateada = operation(code_line, labels)
+            opcode = opcode_translation(formateada)
+            
+            if ("LIT" in formateada) and (re.sub(r'\D',"", code_line)).isnumeric():
+                lit = re.sub(r'\D',"", code_line)
+                lit = str(bin(int(lit)))[2:]
+                lit = f"{"0"*(16-len(lit))}{lit}"
+            elif ("DIR" in formateada):
+                operation, variables = format_code_line(code_line)
+                for variable in variables:
+                    if variable in labels:
+                        lit = re.sub(r'\D',"", labels[variable])
+                        lit = str(bin(int(lit)))[2:]
+                        lit = f"{"0"*(16-len(lit))}{lit}"
+            else:
+                lit = "0"*16
+
+            columnas.append([code_line.strip(), formateada, f"{lit}{opcode}"])
+        #print(f"Original: {code_line}\nIdentificado: {identify_procedure(code_line, "ASSEMBLY")}\n")
+    headers = ["Original", "Formateada", "Opcode"]
+    print(tabulate(columnas, headers))
+
 
 
 # TEST RISCV
