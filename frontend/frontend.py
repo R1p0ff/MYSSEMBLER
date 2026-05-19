@@ -1,7 +1,39 @@
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox
-from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QPlainTextEdit
+from PySide6.QtGui import QFont, QKeyEvent, QTextCursor
 from frontend.fonts.ascii_art import title_art2 as title_art
+
+
+
+class AutoIndentEdit(QPlainTextEdit):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, event: QKeyEvent):
+        if event.key() in (16777220, 16777221):
+            cursor = self.textCursor()
+            line = cursor.block().text()
+            
+            identation = ""
+            for char in line:
+                if char in (' ', '\t'):
+                    identation = f"{identation}{char}"
+                else:
+                    break
+            
+            super().keyPressEvent(event)
+            self.insertPlainText(identation)
+        else:
+            super().keyPressEvent(event)
+
+
+
+
+def post_results(result, text_box):
+    text_box.appendPlainText(result)
+
+
+
 def create_window(ISAs):
     w = QtWidgets.QWidget()
     window_w = 1800
@@ -35,7 +67,7 @@ def create_window(ISAs):
     tab_manager.setObjectName("pestañas_assemblers")
 
     # Input Console
-    input_console = QtWidgets.QPlainTextEdit()
+    input_console = AutoIndentEdit()
     main_console_font = input_console.font()
     main_console_font.setLetterSpacing(QFont.AbsoluteSpacing, 2)
     input_console.setFont(main_console_font)

@@ -1,3 +1,5 @@
+ISAs = ["Assembly computador basico", "RISC V", "CRAFTSSEMBLY"]
+
 opcodes_assembly = {
     "NOP":         "00000001111000000000",
     "MOV A,B":     "00000000011000000001",

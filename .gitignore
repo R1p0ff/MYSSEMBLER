@@ -1,8 +1,15 @@
-backend/__pycache__
-mapas_opcodes/__pycache__
-frontend/__pycache__
+backend/__pycache__/
+mapas_opcodes/__pycache__/
+frontend/__pycache__/
+frontend/fonts/__pycache__/
 l4br4t/
 test/
+
+
+backend/test_assembly.py
+
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -221,5 +228,3 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
-backend/test_assembly.py

@@ -1,6 +1,6 @@
-from mapas_opcodes.opcodes_assembly import opcodes_assembly
-from common_vars import *
-import tabulate
+from backend.mapas_opcodes.opcodes_assembly import opcodes_assembly
+from backend.common_vars import *
+from tabulate import tabulate
 import re
 
 
@@ -141,7 +141,11 @@ def opcode_translation(formated_operation):
 
 def instruction(code_input):
     labels = dir_register(code_input)
-    print(labels)
+    found_labels = []
+    for label in labels:
+        found_labels.append(label)
+    # (LOG)
+    print("Labels encontradas: found_labels")
 
     columnas = []
     for code_line in code_input:
@@ -157,6 +161,9 @@ def instruction(code_input):
             None
 
         if procedure == "Operation":
+            labels = dir_register(code_input)
+            print(labels)
+
             formateada = operation(code_line, labels)
             opcode = opcode_translation(formateada)
             
@@ -165,20 +172,23 @@ def instruction(code_input):
                 lit = str(bin(int(lit)))[2:]
                 lit = f"{"0"*(16-len(lit))}{lit}"
             elif ("DIR" in formateada):
-                operation, variables = format_code_line(code_line)
-                for variable in variables:
-                    if variable in labels:
-                        lit = re.sub(r'\D',"", labels[variable])
-                        lit = str(bin(int(lit)))[2:]
-                        lit = f"{"0"*(16-len(lit))}{lit}"
+                operation_data, variable = format_code_line(code_line)
+                variable = variable.replace("(","")
+                variable = variable.replace(")","")
+                if variable in labels:
+                    registro = labels[variable]
+                    lit = re.sub(r'\D',"", str(registro))
+                    lit = str(bin(int(lit)))[2:]
+                    lit = f"{"0"*(16-len(lit))}{lit}"
             else:
                 lit = "0"*16
 
-            columnas.append([code_line.strip(), formateada, f"{lit}{opcode}"])
-        #print(f"Original: {code_line}\nIdentificado: {identify_procedure(code_line, "ASSEMBLY")}\n")
-    headers = ["Original", "Formateada", "Opcode"]
-    print(tabulate(columnas, headers))
+            columnas.append([code_line.strip(), formateada, f"{lit}", f"{opcode}"])
 
+            
+    headers = ["Original", "Formateada", "LIT", "Opcode"]
+    print(tabulate(columnas, headers))
+    return tabulate(columnas, headers)
 
 
 # TEST RISCV
