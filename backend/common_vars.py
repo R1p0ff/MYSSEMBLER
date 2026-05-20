@@ -6,18 +6,17 @@ assembly_data_header_regex = r"^\s*(DATA|data):"
 assembly_code_header_regex = r"^\s*(CODE|code):"
 assembly_data_variables_regex = r"^\s*([a-zA-Z_][a-zA-Z0-9_]*)\s+(-?[0-9]+)\s*$"
 
-assembly_labels_regex = r"^\s*([a-zA-Z_][a-zA-Z0-9_]*):"
+assembly_labels_regex = r"^\s*(?!(?:DATA|CODE|data|code):\s*$)([a-zA-Z_][a-zA-Z0-9_]*):"
 
 assembly_operations_regex = r"^\s*([A-Z]+)(?:\s+([^,\s]+)(?:\s*,\s*([^,\s]+))?)?"
 
 
-
 # RISC V
-risc5_headers_regex =r"^\s*\.[a-zA-Z0-9_]+"
+riscv_headers_regex =r"^\s*\.[a-zA-Z0-9_]+"
 
-risc5_labels_regex =r"^\s*([a-zA-Z0-9_]+):"
+riscv_labels_regex =r"^\s*([a-zA-Z0-9_]+):"
 
-risc5_operations_regex =r"^\s*([a-z]+)\s+([^,\s]+)(?:\s*,\s*([^,\s]+))?(?:\s*,\s*([^,\s]+))?"
+riscv_operations_regex =r"^\s*([a-z]+)\s+([^,\s]+)(?:\s*,\s*([^,\s]+))?(?:\s*,\s*([^,\s]+))?"
 
 
 max_variables = {

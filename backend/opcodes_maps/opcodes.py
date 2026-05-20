@@ -1,5 +1,3 @@
-ISAs = ["Assembly computador basico", "RISC V", "CRAFTSSEMBLY"]
-
 opcodes_assembly = {
     "NOP":         "00000001111000000000",
     "MOV A,B":     "00000000011000000001",
@@ -96,3 +94,8 @@ opcodes_assembly = {
     "PUSH B":      "00010000011011000011",
     "RET":         "00000110000111000000"
 }
+
+
+ISAs = {"Assembly basic computer" : opcodes_assembly, "RISC V" : ["", ""]}
+#, "CRAFTSSEMBLY" : ["", ""]}
+operations_assembly = ["MOV", "CMP", "JEQ", "JMP", "INC", "ADD", "SUB"]

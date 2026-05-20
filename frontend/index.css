@@ -1,6 +1,6 @@
 @font-face {
-    font-family: 'Ac437 PhoenixEGA 8x14'; /* El nombre que tú quieras darle para usarlo en el CSS */
-    src: url('fonts/Ac437_PhoenixEGA_8x14.ttf'); /* Nombre exacto del archivo que guardaste */
+    font-family: 'Ac437 PhoenixEGA 8x14';
+    src: url('fonts/Ac437_PhoenixEGA_8x14.ttf');
 }
 
 QWidget{
@@ -10,14 +10,13 @@ QWidget{
 
 
 QLabel {
-    color: #ffffff;            /* Verde terminal clásico (o #ffffff si prefieres blanco) */
-    font-family: "Courier New", "Consolas", "Monospace"; /* Fuentes fijas explícitas */
-    font-size: 11px;           /* Un tamaño pequeño evita que el ASCII se desborde */
-    line-height: 100%;         /* Mantiene el espaciado vertical compacto */
+    color: #ffffff;
+    font-family: "Courier New", "Consolas", "Monospace";
+    font-size: 11px;
+    line-height: 100%;
     font-weight: bold;
-    /* LAS DOS PROPIEDADES CRÍTICAS PARA ARTE ASCII: */
-    qproperty-alignment: 'AlignLeft | AlignVCenter'; /* Alinea a la izquierda para que no se desfase */
-    qproperty-wordWrap: false; /* Evita que una línea larga se baje a la fuerza y rompa el dibujo */
+    qproperty-alignment: 'AlignLeft | AlignVCenter';
+    qproperty-wordWrap: false;
 }
 #title {
     color: #2cde85;
@@ -75,15 +74,14 @@ QPlainTextEdit {
     font-size: 40px;
 }
 #consolaLog {
-    font-size: 12px;                 /* Letra un poco más pequeña para los logs */
+    font-size: 12px;
     border: 1px solid #2cde85;
 
     min-height: 40px;
     max-height: 100px;
-    font-size: 20px;                 /* Letra un poco más pequeña para los logs */
+    font-size: 20px;
     
-    /* Si quieres cambiar el comportamiento de las propiedades que vimos antes: */
-    qproperty-undoRedoEnabled: false; /* Desactivas Ctrl+Z solo en los logs */
+    qproperty-undoRedoEnabled: false;
 }
 
 

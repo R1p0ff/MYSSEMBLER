@@ -1,24 +1,26 @@
-from backend.mapas_opcodes.opcodes_assembly import opcodes_assembly
 from backend.common_vars import *
+from backend.opcodes_maps.opcodes import ISAs
 from tabulate import tabulate
 import re
 
 
-
+def clean_comments_code_line(code_line):
+    if ";" in code_line:
+        code_line = code_line.split(";")
+        code_line = code_line[0]
+    return code_line
 
 def format_code_line(code_line):
-    code_line = " ".join(code_line.split())
+    code_line = clean_comments_code_line(code_line)
+    code_line = " ".join(code_line.strip().split())
     code_line = code_line.split()
-    return code_line[0], "".join(code_line[1:])
-
-
+    if len(code_line) != 0:
+        return code_line[0], "".join(code_line[1:])
 
 def label_cleaner(label):
     label = label.replace(":", "")
     label = label.replace(" ", "")
     return label
-
-
 
 def variable_name_cleaner(variable):
     variable = re.sub(' +', ' ', variable.strip())
@@ -29,62 +31,78 @@ def operation_extractor(code_line):
     operation, variables = format_code_line(code_line)
     return operation
 
-
 def ret_pop_checker(code_line):
-    operation = operation_extractor(code_line)
+    operation = None
+    if clean_comments_code_line(code_line):
+        operation = operation_extractor(code_line)
     if operation == "RET" or operation == "POP":
         return 2
+    elif operation == None:
+        return 0
     else:
         return 1
 
-def dir_register(code_data):
+def dir_register(code_data, log_interface):
     data_headers = 0
     code_headers = 0
     labels = {}
-    data_dir_counter = -1
-    code_dir_counter = -1
+    data_dir_counter = 0
+    code_dir_counter = 0
     current_line = 0
     for code_line in code_data:
-        code_line = code_line.strip()
-        current_line +=1
-        is_line_label = (bool(re.search(assembly_labels_regex, code_line)))
-        is_register_label = (bool(re.search(assembly_data_variables_regex, code_line)))
+        if bool(re.search(assembly_code_header_regex, code_line)):
+            code_label_line = current_line
         
+        code_line = code_line.strip()
+        current_line +=1        
 
-        if not code_line:
+        if not (code_line):
             continue
 
         if (bool(re.search(assembly_data_header_regex, code_line))):
             data_headers+=1
+            continue
         elif (bool(re.search(assembly_code_header_regex, code_line))):
             code_headers+=1
+            continue
+
 
         elif (code_headers == 1):
+            is_line_label = (bool(re.search(assembly_labels_regex, code_line)))
+            
             if is_line_label:
-                labels[label_cleaner(code_line)] = code_dir_counter+1
+                labels[label_cleaner(code_line)] = code_dir_counter
+                
+                clean_label = code_line.split(":")
+                if len(clean_label) > 1 and clean_label[1].strip():
+                    code_dir_counter += ret_pop_checker(clean_label[1])
+            
             else:
                 code_dir_counter += ret_pop_checker(code_line)
 
         elif ((data_headers == 1) and (code_headers == 0)):
+            is_register_label = (bool(re.search(assembly_data_variables_regex, code_line)))
+            
             if is_register_label:
-                labels[variable_name_cleaner(code_line)] = data_dir_counter+1
-                data_dir_counter += 1        
+                labels[variable_name_cleaner(code_line)] = data_dir_counter
+                data_dir_counter += 1
+
     if (data_headers != 1 or code_headers != 1):
-        print("ERROR: Headers invalidos")
+        # (LOG)
+        log_interface("ERROR: invalid headers", color = "#b70000")
         exit()
     
-    return labels
+    return labels, code_label_line
 
-    
-def identify_procedure(code_line, code_lenguage):
+def identify_procedure(code_line, code_language):
     identified_procedure = None
     regex_assembly = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
-    regex_risc5 = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
+    regex_riscv = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
 
-    if code_lenguage == "RISCV":
+    if code_language == "RISCV":
+        regex = regex_riscv
+    elif code_language == "ASSEMBLY":
         regex = regex_assembly
-    elif code_lenguage == "ASSEMBLY":
-        regex = regex_risc5
 
     if (re.match(regex[0], code_line)):
         identified_procedure = "Header"
@@ -94,102 +112,196 @@ def identify_procedure(code_line, code_lenguage):
         identified_procedure = "Operation"
     return identified_procedure
 
-def operation(code_line, code_labels):
-    variable_labels = []
+def operation(code_line, code_labels, log_interface):
     operation, variables = format_code_line(code_line)
     variables = variables.split(",")[:max_variables[operation]]    
+
     if max_variables[operation] == 0:
-        #opcode = opcodes_assembly[f"{operation}"]
-        #print(f"{opcode}\n")
         return operation
-    mapeo_variables = []
+
+    variable_mapping = []
     for variable in variables:
         if variable.isnumeric():
-            mapeo_variables.append("LIT")
+            variable_mapping.append("LIT")
         elif isinstance(variable, int):
-            mapeo_variables.append("LIT")
+            variable_mapping.append("LIT")
         
         elif "(" in variable:
             variable = variable.replace("(", "")
             variable = variable.replace(")", "")
-            if ((variable.isnumeric()) or (variable in code_labels)):
-                mapeo_variables.append("(DIR)")
+            if ((variable.isnumeric()) or (variable in code_labels) or ("DIR" in variable)):
+                variable_mapping.append("(DIR)")
             else:
-                mapeo_variables.append("(B)")
+                variable_mapping.append("(B)")
 
         elif (variable in code_labels):
-            mapeo_variables.append("DIR")
+            variable_mapping.append("DIR")
 
         else:
-            mapeo_variables.append(variable)
+            variable_mapping.append(variable)
 
-    mapeo_variables = ",".join(mapeo_variables)
+    variable_mapping = ",".join(variable_mapping)
 
-    #opcode = opcodes_assembly[f"{operation} {mapeo_variables}"]
-    #print(f"{operation} {mapeo_variables}")
-    #print(f"{opcode}\n")
-    #return opcode, operation
-    return f"{operation} {mapeo_variables}"
+    # (LOG)
+    log_interface(f"Mapped operation to key {operation} {variable_mapping}", color="#2cde85")
+    return f"{operation} {variable_mapping}"
 
+def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0):
+    i = 0+charge_cost
+    columns = []
+    for code_line in code_lines:
+        code_line = code_line.strip()
+        if not format_code_line(code_line):
+            continue
+        procedure = identify_procedure(code_line, "ASSEMBLY")
+        if procedure is None:
+            continue
 
+        log_interface(f"{procedure} identified in the line {code_line}")
+        
+        if procedure == "Operation":
+            formatted = operation(code_line, labels, log_interface)
+            try:
+                opcode = opcodes[formatted]
+            except:
+                log_interface(f"ERROR: invalid operation: {formatted}", color = "#b70000")
+                return None
 
-def opcode_translation(formated_operation):
-    return opcodes_assembly[formated_operation]
+            
+            operation_data, variables = format_code_line(code_line)
+            
+            variables = variables.split(",")
+            lit = "0"*16
+            for variable in variables:
+                if ("LIT" in formatted) and (re.sub(r'\D',"", variable)).isnumeric():
+                    # (LOG)
+                    log_interface(f"LITERAL VALUE identified in the line {code_line}, value = {variable}")
+                    lit = re.sub(r'\D',"", variable)
+                    lit = str(bin(int(lit)))[2:]
+                    lit = f"{"0"*(16-len(lit))}{lit}"
+                    # (LOG)
+                    log_interface(f"LITERAL: {lit}", color="#2cde85")
+                    break
+                elif ("DIR" in formatted):
+                    variable = variable.replace("(","")
+                    variable = variable.replace(")","")
+                    if variable in labels:
+                        register = labels[variable]
+                        # (LOG)
+                        log_interface(f"REGISTER DIRECTION VARIABLE identified in the line {code_line}, {variable} = {register}")
+                        lit = re.sub(r'\D',"", str(register))
+                        lit = str(bin(int(lit)))[2:]
+                        lit = f"{"0"*(16-len(lit))}{lit}"
+                        # (LOG)
+                        log_interface(f"LITERAL: {lit}", color="#2cde85")
+                        break
+                    elif variable.isnumeric():
+                        # (LOG)
+                        log_interface(f"REGISTER DIRECTION LITERAL identified in the line {code_line}, address = {variable}")
+                        lit = str(bin(int(variable)))[2:]
+                        lit = f"{"0"*(16-len(lit))}{lit}"
+                        # (LOG)
+                        log_interface(f"LITERAL: {lit}", color="#2cde85")
+                        break
+            columns.append([f"({i})" ," ".join(format_code_line(code_line.strip())), formatted, f"{lit}", f"{opcode}"])
+            i+=1
+
+            active_operation = operation_extractor(code_line)
+            if active_operation in ["RET", "POP"]:
+                filling_lit = "0"*16
+                filling_opcode = "0"*20
+                columns.append([f"({i})" ,f"{active_operation} FILL", "FILLING", f"{filling_lit}", f"{filling_opcode}"])
+                i+=1
+
+    return columns
+
+def format_charge_operation(value, opcodes, selected_operation, labels, log_interface):
+    formatted = operation(selected_operation, labels, log_interface)
+    try:
+        opcode = opcodes[formatted]
+    except:
+        log_interface(f"ERROR: invalid operation: {formatted}", color = "#ff0000")
+        return None
+    lit = str(bin(value))[2:]
+    lit = f"{"0"*(16-len(lit))}{lit}"
+    return opcode, lit
+
+def data_instructions(data_lines, labels, opcodes, log_interface):
+    necessary_instructions = 0
+    data_labels = []
+    direction = 0
+    i=0
+    charge_opcodes = []
+
+    for code_line in data_lines:
+        if not clean_comments_code_line(code_line).strip():
+            label, value = format_code_line(code_line)
+            if not value:
+                continue
+        if not (bool(re.search(assembly_data_header_regex, code_line))):
+            label, value = format_code_line(code_line)
+            if not value.isnumeric():
+                log_interface("ERROR: invalid headers", color = "#ff0000")
+
+            value = int(value.strip())
+            operations = [f"MOV A,{value}", f"MOV (DIR),A"]
+            
+            opcode, lit = format_charge_operation(value, opcodes, operations[0], labels, log_interface)
+            if lit == None:
+                break
+            formatted_operation = operation(" ".join(format_code_line(operations[0])), labels, log_interface)
+            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{lit}", f"{opcode}"])
+            i+=1
+            
+            opcode, lit = format_charge_operation(direction, opcodes, operations[1], labels, log_interface)
+            formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
+            charge_opcodes.append([f"({i})", operations[1], formatted_operation, f"{lit}", f"{opcode}"])
+            i+=1
+            
+            data_labels.append(label)
+            necessary_instructions+=2
+            direction+=1
+
+    return charge_opcodes, necessary_instructions, data_labels, i
 
 
 #def create_variables(code_input):
-
-def instruction(code_input):
-    labels = dir_register(code_input)
+def instruction(code_input, selected_isa, log_interface):
+    opcodes = ISAs[selected_isa]
     found_labels = []
+    line_counter = 0
+    clean_input = []
+    for line in code_input:
+        if clean_comments_code_line(line):
+            clean_input.append(line)
+    code_input = clean_input
+    labels, code_position = dir_register(code_input, log_interface)
+
     for label in labels:
         found_labels.append(label)
-    # (LOG)
-    print("Labels encontradas: found_labels")
+        log_interface(f"Label \"{label}\" identified, value {hex(int(labels[label]))}")
+        line_counter+=1
 
-    columnas = []
-    for code_line in code_input:
-        if not (code_line):
-            continue
-        procedure = identify_procedure(code_line, "ASSEMBLY")
+    data_lines = code_input[:code_position]
+    code_lines = code_input[code_position+1:]
 
-        if procedure == "Header":
-            None
+    table_data, necessary_instructions, data_labels, charge_cost = data_instructions(data_lines, labels, opcodes, log_interface)
+    print(table_data)
+    for label in labels:
+        if label not in data_labels:
+            labels[label]+=necessary_instructions
 
 
-        if procedure == "Label":
-            None
+    table_codes = code_instructions(code_lines, labels, opcodes, log_interface, charge_cost)
 
-        if procedure == "Operation":
-            labels = dir_register(code_input)
-            print(labels)
+    headers = ["#","Original", "Formatted", "LIT", "Opcode"]
+    table_rows = table_data+table_codes
+    result_table = tabulate(table_rows, headers)
+    print(result_table)
 
-            formateada = operation(code_line, labels)
-            opcode = opcode_translation(formateada)
-            
-            if ("LIT" in formateada) and (re.sub(r'\D',"", code_line)).isnumeric():
-                lit = re.sub(r'\D',"", code_line)
-                lit = str(bin(int(lit)))[2:]
-                lit = f"{"0"*(16-len(lit))}{lit}"
-            elif ("DIR" in formateada):
-                operation_data, variable = format_code_line(code_line)
-                variable = variable.replace("(","")
-                variable = variable.replace(")","")
-                if variable in labels:
-                    registro = labels[variable]
-                    lit = re.sub(r'\D',"", str(registro))
-                    lit = str(bin(int(lit)))[2:]
-                    lit = f"{"0"*(16-len(lit))}{lit}"
-            else:
-                lit = "0"*16
+    
 
-            columnas.append([code_line.strip(), formateada, f"{lit}", f"{opcode}"])
-
-            
-    headers = ["Original", "Formateada", "LIT", "Opcode"]
-    print(tabulate(columnas, headers))
-    return tabulate(columnas, headers)
-
+    return result_table
 
 # TEST RISCV
 #identified_procedure = re.match(regex_))
