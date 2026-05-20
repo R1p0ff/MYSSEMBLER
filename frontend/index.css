@@ -72,7 +72,12 @@ QPlainTextEdit {
 
     font-family: 'Ac437 PhoenixEGA 8x14', monospace;
     font-size: 40px;
+
+    selection-background-color: #2cde85; 
+    
+    selection-color: #000000; 
 }
+
 #consolaLog {
     font-size: 12px;
     border: 1px solid #2cde85;
