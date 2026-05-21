@@ -2,7 +2,6 @@
     font-family: 'Ac437 PhoenixEGA 8x14';
     src: url('fonts/Ac437_PhoenixEGA_8x14.ttf');
 }
-
 QWidget{
     background: #1a1c1e;
 }
@@ -122,6 +121,7 @@ QScrollBar:pressed{
 }
 
 
+
 /* TABS */
 QTabWidget::pane {
     background: #131416;         
@@ -156,9 +156,6 @@ QTabBar::tab:hover {
 QTabBar::tab:pressed{  
 	background-color: #18673f;
 }
-
-
-
 
 
 
