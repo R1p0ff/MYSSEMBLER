@@ -33,6 +33,7 @@ max_variables = {
     "DEC"  : 1,
     "CMP"  : 2,
     "JMP"  : 1,
+    "JLT"  : 1,
     "JEQ"  : 1,
     "JNE"  : 1,
     "NOP"  : 0,

@@ -16,8 +16,4 @@ def programmer(port, hex_bytes, log_interface):
         serial_com.close()
         log_interface(f"DONE: bytes loaded to ROM", color="#2cde85")
     except:
-        try:
-            log_interface(f"WARNING: Failed to load byte packet ({bytes_package}) to port {port}", color = "#ff0000")
-        except:
-            bytes_package = "NO BYTE PACKAGE DETECTED"
-            log_interface(f"WARNING: Failed to load byte packet ({bytes_package}) to port {port}", color = "#ff0000")
+        log_interface(f"WARNING: Failed to load byte packet to port {port}", color = "#ff0000")
