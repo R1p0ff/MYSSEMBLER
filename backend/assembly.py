@@ -89,7 +89,7 @@ def dir_register(code_data, log_interface):
 
     if (data_headers != 1 or code_headers != 1):
         # (LOG)
-        log_interface("ERROR: invalid headers", color = "#b70000")
+        log_interface("WARNING: invalid headers", color = "#b70000")
         exit()
     
     return labels, code_label_line
@@ -146,9 +146,79 @@ def operation(code_line, code_labels, log_interface):
     log_interface(f"Mapped operation to key {operation} {variable_mapping}", color="#2cde85")
     return f"{operation} {variable_mapping}"
 
+def hex_converter(litopcode, log_interface):
+    opcode_bytes = [litopcode[:8], litopcode[8:16],litopcode[16:24], litopcode[24:32], litopcode[32:40]]
+    hex_bytes = []
+    # 00 0E E0 0E 01
+    for byte in opcode_bytes:
+        resultado = f"{int(byte,2):02X}"
+        hex_bytes.append(resultado)
+    log_interface(f"Created hex ({" ".join(hex_bytes)}) for operation {litopcode}", color="#2B885A")
+    return hex_bytes
+
+def format_charge_operation(value, opcodes, selected_operation, labels, log_interface):
+    formatted = operation(selected_operation, labels, log_interface)
+    try:
+        opcode = opcodes[formatted]
+    except:
+        log_interface(f"WARNING: invalid operation: {formatted}", color = "#ff0000")
+        return None
+    lit = str(bin(value))[2:]
+    lit = f"{"0"*(16-len(lit))}{lit}"
+    return opcode, lit
+
+def addressing(i, lit, opcode, log_interface):
+    binary_address = str(bin(int(i)))[2:]
+    binary_address = f"{"0"*(12-len(binary_address))}{binary_address}"
+    addressed_opcode = f"{binary_address}{lit}{opcode}"
+    addressed_hex = hex_converter(addressed_opcode, log_interface)
+    return binary_address, addressed_opcode, addressed_hex
+
+def data_instructions(data_lines, labels, opcodes, log_interface):
+    necessary_instructions = 0
+    data_labels = []
+    direction = 0
+    i=0
+    charge_opcodes = []
+    charge_opcodes_hexadecimals = []
+    for code_line in data_lines:
+        if not clean_comments_code_line(code_line).strip():
+            label, value = format_code_line(code_line)
+            if not value:
+                continue
+        if not (bool(re.search(assembly_data_header_regex, code_line))):
+            label, value = format_code_line(code_line)
+            if not value.isnumeric():
+                log_interface("WARNING: invalid headers", color = "#ff0000")
+
+            value = int(value.strip())
+            operations = [f"MOV A,{value}", f"MOV (DIR),A"]
+            
+            opcode, lit = format_charge_operation(value, opcodes, operations[0], labels, log_interface)
+            if lit == None:
+                break
+            binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
+            formatted_operation = operation(" ".join(format_code_line(operations[0])), labels, log_interface)
+            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+            i+=1
+            
+
+            opcode, lit = format_charge_operation(direction, opcodes, operations[1], labels, log_interface)
+            binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
+            formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
+            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+            i+=1
+
+            data_labels.append(label)
+            necessary_instructions+=2
+            direction+=1
+
+    return charge_opcodes, charge_opcodes_hexadecimals, necessary_instructions, data_labels, i
+
 def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0):
     i = 0+charge_cost
     columns = []
+    code_opcodes_hexadecimals = []
     for code_line in code_lines:
         code_line = code_line.strip()
         if not format_code_line(code_line):
@@ -164,10 +234,9 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
             try:
                 opcode = opcodes[formatted]
             except:
-                log_interface(f"ERROR: invalid operation: {formatted}", color = "#b70000")
+                log_interface(f"WARNING: invalid operation: {formatted}", color = "#b70000")
                 return None
 
-            
             operation_data, variables = format_code_line(code_line)
             
             variables = variables.split(",")
@@ -203,69 +272,30 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
                         # (LOG)
                         log_interface(f"LITERAL: {lit}", color="#2cde85")
                         break
-            columns.append([f"({i})" ," ".join(format_code_line(code_line.strip())), formatted, f"{lit}", f"{opcode}"])
+            
+            binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
+
+            code_opcodes_hexadecimals.append(addressed_hex)
+            columns.append([f"({i})" ," ".join(format_code_line(code_line.strip())), formatted, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+            
             i+=1
 
             active_operation = operation_extractor(code_line)
             if active_operation in ["RET", "POP"]:
+
+                filling_binary_address = str(bin(int(i)))[2:]
+                filling_binary_address = f"{"0"*(12-len(filling_binary_address))}{filling_binary_address}"
                 filling_lit = "0"*16
                 filling_opcode = "0"*20
-                columns.append([f"({i})" ,f"{active_operation} FILL", "FILLING", f"{filling_lit}", f"{filling_opcode}"])
+                addressed_filling_opcode = f"{filling_binary_address}{filling_lit}{filling_opcode}"
+                filling_addressed_hex = hex_converter(addressed_filling_opcode, log_interface)
+
+                columns.append([f"({i})" ,f"{active_operation} FILL", "FILLING", f"{filling_binary_address}", f"{filling_lit}", f"{filling_opcode}", " ".join(filling_addressed_hex)])
+                
                 i+=1
 
-    return columns
+    return columns, code_opcodes_hexadecimals
 
-def format_charge_operation(value, opcodes, selected_operation, labels, log_interface):
-    formatted = operation(selected_operation, labels, log_interface)
-    try:
-        opcode = opcodes[formatted]
-    except:
-        log_interface(f"ERROR: invalid operation: {formatted}", color = "#ff0000")
-        return None
-    lit = str(bin(value))[2:]
-    lit = f"{"0"*(16-len(lit))}{lit}"
-    return opcode, lit
-
-def data_instructions(data_lines, labels, opcodes, log_interface):
-    necessary_instructions = 0
-    data_labels = []
-    direction = 0
-    i=0
-    charge_opcodes = []
-
-    for code_line in data_lines:
-        if not clean_comments_code_line(code_line).strip():
-            label, value = format_code_line(code_line)
-            if not value:
-                continue
-        if not (bool(re.search(assembly_data_header_regex, code_line))):
-            label, value = format_code_line(code_line)
-            if not value.isnumeric():
-                log_interface("ERROR: invalid headers", color = "#ff0000")
-
-            value = int(value.strip())
-            operations = [f"MOV A,{value}", f"MOV (DIR),A"]
-            
-            opcode, lit = format_charge_operation(value, opcodes, operations[0], labels, log_interface)
-            if lit == None:
-                break
-            formatted_operation = operation(" ".join(format_code_line(operations[0])), labels, log_interface)
-            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{lit}", f"{opcode}"])
-            i+=1
-            
-            opcode, lit = format_charge_operation(direction, opcodes, operations[1], labels, log_interface)
-            formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
-            charge_opcodes.append([f"({i})", operations[1], formatted_operation, f"{lit}", f"{opcode}"])
-            i+=1
-            
-            data_labels.append(label)
-            necessary_instructions+=2
-            direction+=1
-
-    return charge_opcodes, necessary_instructions, data_labels, i
-
-
-#def create_variables(code_input):
 def instruction(code_input, selected_isa, log_interface):
     opcodes = ISAs[selected_isa]
     found_labels = []
@@ -285,23 +315,20 @@ def instruction(code_input, selected_isa, log_interface):
     data_lines = code_input[:code_position]
     code_lines = code_input[code_position+1:]
 
-    table_data, necessary_instructions, data_labels, charge_cost = data_instructions(data_lines, labels, opcodes, log_interface)
-    print(table_data)
+    table_data, charge_opcodes_hexadecimals, necessary_instructions, data_labels, charge_cost = data_instructions(data_lines, labels, opcodes, log_interface)
     for label in labels:
         if label not in data_labels:
             labels[label]+=necessary_instructions
 
+    table_codes, code_opcodes_hexadecimals = code_instructions(code_lines, labels, opcodes, log_interface, charge_cost)
 
-    table_codes = code_instructions(code_lines, labels, opcodes, log_interface, charge_cost)
-
-    headers = ["#","Original", "Formatted", "LIT", "Opcode"]
+    hexadecimals = charge_opcodes_hexadecimals + code_opcodes_hexadecimals
+    headers = ["#","Original", "Formatted", "ROM Address", "LIT", "Opcode", "HEX"]
     table_rows = table_data+table_codes
     result_table = tabulate(table_rows, headers)
     print(result_table)
 
-    
-
-    return result_table
+    return result_table, hexadecimals
 
 # TEST RISCV
 #identified_procedure = re.match(regex_))

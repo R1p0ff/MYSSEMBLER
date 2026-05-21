@@ -4,7 +4,7 @@ frontend/__pycache__/
 frontend/fonts/__pycache__/
 l4br4t/
 test/
-
+backend/craftssembly.py
 backend/test_assembly.py
 
 

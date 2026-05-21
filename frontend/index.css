@@ -177,11 +177,8 @@ QComboBox:hover {
     background: #24272b;
     color: #2cde85;              
 }
-
-/*
-QComboBox:on, QComboBox:pressed {  
-    background-color: #18673f;
-    color: #ffffff;
-    border-color: #2cde85;
+#port_selector QAbstractItemView {
+    font-size: 15px;
 }
-*/
+
+

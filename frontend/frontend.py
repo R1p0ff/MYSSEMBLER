@@ -1,8 +1,8 @@
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtWidgets import QApplication, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QPlainTextEdit
+from PySide6.QtWidgets import QApplication, QWidget, QLineEdit, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QComboBox, QPlainTextEdit
 from PySide6.QtGui import QFont, QKeyEvent, QTextCursor, QSyntaxHighlighter, QTextCharFormat, QColor
 from PySide6.QtCore import QRegularExpression
-
+import serial.tools.list_ports
 from frontend.fonts.ascii_art import title_art2 as title_art
 from tabulate import tabulate
 
@@ -131,6 +131,8 @@ def create_window(ISAs):
     button_file = QtWidgets.QPushButton("Import File")
     button_file.setObjectName("btnImportFile")
 
+
+    # ISA Selector
     ISA_selector = QComboBox()
     fuente_selector = ISA_selector.font()
     fuente_selector.setFamily('Ac437 PhoenixEGA 8x14')
@@ -138,6 +140,25 @@ def create_window(ISAs):
     ISA_selector.setFont(fuente_selector)
     for isa in ISAs:
         ISA_selector.addItem(f"    {isa}")
+    # PORT Selector
+    PORT_selector = QComboBox()
+    fuente_selector = PORT_selector.font()
+    fuente_selector.setFamily('Ac437 PhoenixEGA 8x14')
+    fuente_selector.setPointSize(12)
+    PORT_selector.setFont(fuente_selector)
+    PORT_selector.setObjectName("port_selector")
+
+    detected_ports = serial.tools.list_ports.comports()
+    for port in detected_ports:
+        PORT_selector.addItem(f"    {port.device}")
+
+    # COM input
+    com_input = QLineEdit()
+    com_input.setPlaceholderText("Insert port...")
+    fuente_com = com_input.font()
+    fuente_com.setFamily('Ac437 PhoenixEGA 8x14')
+    fuente_com.setPointSize(12)
+    com_input.setFont(fuente_com)
 
     # Tabs
     tab_manager = QtWidgets.QTabWidget()
@@ -180,10 +201,6 @@ def create_window(ISAs):
     tab_manager.addTab(craftssembly_console, "Craftsembler")
     tab_manager.addTab(isa_console, "ISA")
 
-
-
-
-
     # Add widgets to the layout
     main_layout = QVBoxLayout(w)
     separation = (1800-1750)/2*1.25
@@ -191,13 +208,17 @@ def create_window(ISAs):
     upper_buttons_layout = QHBoxLayout()
     upper_buttons_layout.addWidget(button_file)
     upper_buttons_layout.addWidget(button_program)
-    upper_selectors_layout = QVBoxLayout()
-    upper_selectors_layout.addLayout(upper_buttons_layout)
-    upper_selectors_layout.addWidget(ISA_selector)
+    
+
+    upper_processing_layout = QVBoxLayout()
+    upper_processing_layout.addLayout(upper_buttons_layout)
+    upper_processing_layout.addWidget(ISA_selector)
+    upper_processing_layout.addWidget(PORT_selector)
+
     upper_layout = QHBoxLayout()
     upper_layout.setContentsMargins(separation,0 , separation, 0)
     upper_layout.addWidget(title)
-    upper_layout.addLayout(upper_selectors_layout)
+    upper_layout.addLayout(upper_processing_layout)
 
 
     middle_layout = QHBoxLayout()
@@ -221,4 +242,4 @@ def create_window(ISAs):
     # Show the window
     w.show()
     
-    return w, button_file, button_assemble, input_console, opcodes_console, log_console, isa_console, ISA_selector
+    return w, button_file, button_program, button_assemble, input_console, opcodes_console, log_console, isa_console, ISA_selector, PORT_selector
