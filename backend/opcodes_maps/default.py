@@ -1,4 +1,4 @@
-default_code2 = """DATA:
+default_code = """DATA:
     nulo 238
     i 10
 CODE:
