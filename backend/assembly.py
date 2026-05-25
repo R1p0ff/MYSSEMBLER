@@ -1,5 +1,5 @@
 from backend.common_vars import *
-from backend.opcodes_maps.opcodes import ISAs
+from backend.opcodes_maps.opcodes import ISAs, max_variables_assembly
 from tabulate import tabulate
 import re
 
@@ -114,9 +114,9 @@ def identify_procedure(code_line, code_language):
 
 def operation(code_line, code_labels, log_interface):
     operation, variables = format_code_line(code_line)
-    variables = variables.split(",")[:max_variables[operation]]    
+    variables = variables.split(",")[:max_variables_assembly[operation]]    
 
-    if max_variables[operation] == 0:
+    if max_variables_assembly[operation] == 0:
         return operation
 
     variable_mapping = []
@@ -131,8 +131,11 @@ def operation(code_line, code_labels, log_interface):
             variable = variable.replace(")", "")
             if ((variable.isnumeric()) or (variable in code_labels) or ("DIR" in variable)):
                 variable_mapping.append("(DIR)")
-            else:
+            elif variable.strip() == "B":
                 variable_mapping.append("(B)")
+            else:
+                log_interface(f"WARNING: invalid register or label: {variable}", color = "#ff0000")
+                return None
 
         elif (variable in code_labels):
             variable_mapping.append("DIR")
@@ -206,7 +209,7 @@ def data_instructions(data_lines, labels, opcodes, log_interface):
             opcode, lit = format_charge_operation(direction, opcodes, operations[1], labels, log_interface)
             binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
             formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
-            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+            charge_opcodes.append([f"({i})", "WRITING", formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
             i+=1
 
             data_labels.append(label)
@@ -303,7 +306,7 @@ def instruction(code_input, selected_isa, log_interface):
     clean_input = []
     for line in code_input:
         if clean_comments_code_line(line):
-            clean_input.append(line)
+            clean_input.append(clean_comments_code_line(line))
     code_input = clean_input
     labels, code_position = dir_register(code_input, log_interface)
 

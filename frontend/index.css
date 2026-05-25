@@ -1,181 +1,163 @@
 @font-face {
-    font-family: 'Ac437 PhoenixEGA 8x14';
-    src: url('fonts/Ac437_PhoenixEGA_8x14.ttf');
+  font-family: "Ac437 PhoenixEGA 8x14";
+  src: url("fonts/Ac437_PhoenixEGA_8x14.ttf");
 }
-QWidget{
-    background: #1a1c1e;
+QWidget {
+  background: #1a1c1e;
 }
-
-
 
 QLabel {
-    color: #ffffff;
-    font-family: "Courier New", "Consolas", "Monospace";
-    font-size: 11px;
-    line-height: 100%;
-    font-weight: bold;
-    qproperty-alignment: 'AlignLeft | AlignVCenter';
-    qproperty-wordWrap: false;
+  color: #ffffff;
+  font-family: "Courier New", "Consolas", "Monospace";
+  font-size: 11px;
+  line-height: 100%;
+  font-weight: bold;
+  qproperty-alignment: "AlignLeft | AlignVCenter";
+  qproperty-wordwrap: false;
 }
 #title {
-    color: #2cde85;
-    font-size: 20px;
-
+  color: #2cde85;
+  font-size: 20px;
 }
 
+QPushButton {
+  background-color: #26a164;
+  color: #1a1c1e;
+  border-radius: 5px;
+  font: bold 14px;
+  padding: 6px;
 
-QPushButton{
-    background-color: #26a164;
-    color: #1a1c1e;
-    border-radius: 5px;
-    font: bold 14px;
-    padding: 6px;
+  min-height: 40px;
+  max-height: 50px;
+  max-width: 200px;
 
-    min-height: 40px;
-    max-height: 50px;
-    max-width: 200px;
-    
-    font-size: 30px;
-    font-family: monospace;
-
+  font-size: 30px;
+  font-family: monospace;
 }
-QPushButton:hover{
-    background-color: #2cde85;
+QPushButton:hover {
+  background-color: #2cde85;
 }
-QPushButton:pressed{  
-	background-color: #18673f;
-    color: #b0b0b0;
-
+QPushButton:pressed {
+  background-color: #18673f;
+  color: #b0b0b0;
 }
 
-#btnImportFile{
-    margin-right: 50px;
-    max-width: 220px;
-
+#btnImportFile {
+  margin-right: 50px;
+  max-width: 220px;
 }
-#btnAssemble{
-    width: 200px;
-
+#btnAssemble {
+  width: 200px;
 }
-
-
 
 QPlainTextEdit {
-    background-color: #131416;
-    color : #ffffff;
-    border-color: #26a164;
-    padding: 10px;
-    
-    min-height: 40px;
-    max-height: 800px;
+  background-color: #131416;
+  color: #ffffff;
+  border-color: #26a164;
+  padding: 10px;
 
-    font-family: 'Ac437 PhoenixEGA 8x14', monospace;
-    font-size: 40px;
+  min-height: 40px;
+  max-height: 800px;
 
-    selection-background-color: #2cde85; 
-    
-    selection-color: #000000; 
+  font-family: "Ac437 PhoenixEGA 8x14", monospace;
+  font-size: 40px;
+
+  selection-background-color: #2cde85;
+
+  selection-color: #000000;
 }
 
 #consolaLog {
-    font-size: 12px;
-    border: 1px solid #2cde85;
+  font-size: 12px;
+  border: 1px solid #2cde85;
 
-    min-height: 40px;
-    max-height: 100px;
-    font-size: 20px;
-    
-    qproperty-undoRedoEnabled: false;
+  min-height: 40px;
+  max-height: 100px;
+  font-size: 20px;
+
+  qproperty-undoredoenabled: false;
 }
-
-
 
 /* ScrollBar */
 QScrollBar:vertical {
-    background-color: #18673f;
-    width: 14px;
-    margin: 0px 0px 0px 0px;
-    border: none;
+  background-color: #18673f;
+  width: 14px;
+  margin: 0px 0px 0px 0px;
+  border: none;
 }
 QScrollBar::handle:vertical {
-    background-color: #26a164;
-    min-height: 20px;
-    border-radius: 2px;
-    margin: 2px;
+  background-color: #26a164;
+  min-height: 20px;
+  border-radius: 2px;
+  margin: 2px;
 }
 QScrollBar::handle:vertical:hover {
-    background-color: #2cde85;
+  background-color: #2cde85;
 }
-QScrollBar::add-line:vertical, 
+QScrollBar::add-line:vertical,
 QScrollBar::sub-line:vertical {
-    background: none;
-    height: 0px;
-    subcontrol-origin: margin;
+  background: none;
+  height: 0px;
+  subcontrol-origin: margin;
 }
-QScrollBar::add-page:vertical, 
+QScrollBar::add-page:vertical,
 QScrollBar::sub-page:vertical {
-    background: none;
+  background: none;
 }
-QScrollBar:pressed{  
-	background-color: #18673f;
+QScrollBar:pressed {
+  background-color: #18673f;
 }
-
-
 
 /* TABS */
 QTabWidget::pane {
-    background: #131416;         
-    border: 1px solid #2cde85;   
+  background: #131416;
+  border: 1px solid #2cde85;
 }
 QTabBar {
-    min-width: 400px;          
+  min-width: 400px;
 }
 QTabBar::tab {
-    color: #b0b0b0;              
-    background: #1a1c1e;         
-    border: 1px solid #3a3d40;   
-    border-bottom-color: #2cde85; 
-    border-top-left-radius: 4px; 
-    border-top-right-radius: 4px; 
-    padding: 6px 16px;           
-    margin-bottom: -1px;         
-    font-family: 'Ac437 PhoenixEGA 8x14', monospace;
-    font-size: 16px;
+  color: #b0b0b0;
+  background: #1a1c1e;
+  border: 1px solid #3a3d40;
+  border-bottom-color: #2cde85;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 6px 16px;
+  margin-bottom: -1px;
+  font-family: "Ac437 PhoenixEGA 8x14", monospace;
+  font-size: 16px;
 }
 QTabBar::tab:selected {
-    color: #2cde85;              
-    background: #131416;         
-    border: 1px solid #2cde85;   
-    border-bottom-color: #131416; 
-    font-weight: bold;
+  color: #2cde85;
+  background: #131416;
+  border: 1px solid #2cde85;
+  border-bottom-color: #131416;
+  font-weight: bold;
 }
 QTabBar::tab:hover {
-    background: #24272b;
-    color: #2cde85;              
+  background: #24272b;
+  color: #2cde85;
 }
-QTabBar::tab:pressed{  
-	background-color: #18673f;
+QTabBar::tab:pressed {
+  background-color: #18673f;
 }
-
-
 
 /* SELECTOR */
 QComboBox {
-    background-color: #131416;         
-    border: 1px solid #2cde85;   
-    color: #ffffff;
-    font-size: 30px;
+  background-color: #131416;
+  border: 1px solid #2cde85;
+  color: #ffffff;
+  font-size: 30px;
 }
-QComboBox{
-    max-width: 500px;          
+QComboBox {
+  max-width: 500px;
 }
 
 QComboBox:hover {
-    background: #24272b;
-    color: #2cde85;              
+  background: #24272b;
+  color: #2cde85;
 }
 #port_selector QAbstractItemView {
-    font-size: 15px;
+  font-size: 15px;
 }
-
-

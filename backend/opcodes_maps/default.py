@@ -1,58 +1,29 @@
 default_code = """DATA:
-    nulo 238
-    i 10
+    res 0    ; Resultado MCD
+    temp 0   ; Variable auxiliar para swap
+    a 105
+    b 30
 CODE:
-paso1:
-    MOV A,0
-    MOV B,1
+start:
+    MOV A,(a)
+    MOV B,(b)
+loop:
     CMP A,B
-    JEQ mal
-    MOV B,1
-    MOV A,0
+    JLT swap
+    SUB A,B
+    ; Verificamos si A es 0 (usando comparacion contra literal 0)
+    MOV B,0 
     CMP A,B
-    JEQ mal
-    MOV A,1
-    CMP A,B
-    JEQ paso2
-    JMP mal
-paso2:
-    JMP paso3
-    CMP A,B
-    JEQ mal
-    JMP mal
-paso3:
-    MOV A,(i)
-    CMP A,B
-    JEQ mal
-    MOV B,(1)
-    CMP A,B
-    JEQ paso4
-    JMP mal
-paso4:
-    MOV A,1
-    MOV B,1
-    MOV B,(i)
-    CMP A,B
-    JEQ mal
-    MOV A,(1)
-    CMP A,B
-    JEQ paso5
-    JMP mal
-paso5:
-    INC (i)
-    MOV A,(i)
-    MOV B,11
-    CMP A,B
-    JEQ bien
-    JMP mal
-bien:
-    MOV A,170
-    MOV B,17
-    JMP null
-mal:
-    MOV A,255
-    MOV B,255
-null:
-    JMP null
-    CMP A,B
-    JEQ null"""
+    JEQ done
+    MOV B,(b) ; Recargamos B original tras la comprobacion
+    JMP loop
+swap:
+    MOV (temp),A
+    MOV A,(b)
+    MOV B,(temp)
+    JMP loop
+done:
+    MOV A, B
+    MOV (res), A
+halt:
+    JMP halt"""
