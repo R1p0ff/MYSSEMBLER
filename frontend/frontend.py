@@ -179,6 +179,7 @@ def create_window(ISAs):
 
     # Opcodes
     opcodes_console = QtWidgets.QPlainTextEdit(readOnly=True)
+    opcodes_console.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
     opcodes_console.setFont(main_console_font)
 
     # Craftssembly

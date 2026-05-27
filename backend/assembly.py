@@ -150,7 +150,7 @@ def operation(code_line, code_labels, log_interface):
     return f"{operation} {variable_mapping}"
 
 def hex_converter(litopcode, log_interface):
-    opcode_bytes = [litopcode[:8], litopcode[8:16],litopcode[16:24], litopcode[24:32], litopcode[32:40]]
+    opcode_bytes = [litopcode[:8], litopcode[8:16],litopcode[16:24], litopcode[24:32], litopcode[32:40], litopcode[40:48]]
     hex_bytes = []
     # 00 0E E0 0E 01
     for byte in opcode_bytes:

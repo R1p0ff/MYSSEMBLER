@@ -107,6 +107,34 @@ QScrollBar::sub-page:vertical {
 QScrollBar:pressed {
   background-color: #18673f;
 }
+QScrollBar:horizontal {
+  background-color: #18673f;
+  height: 14px;
+  margin: 0px 0px 0px 0px;
+  border: none;
+}
+QScrollBar::handle:horizontal {
+  background-color: #26a164;
+  min-width: 20px;
+  border-radius: 2px;
+  margin: 2px;
+}
+QScrollBar::handle:horizontal:hover {
+  background-color: #2cde85;
+}
+QScrollBar::add-line:horizontal,
+QScrollBar::sub-line:horizontal {
+  background: none;
+  width: 0px;
+  subcontrol-origin: margin;
+}
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+  background: none;
+}
+
+
+
 
 /* TABS */
 QTabWidget::pane {
