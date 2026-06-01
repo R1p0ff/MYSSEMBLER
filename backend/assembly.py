@@ -164,7 +164,7 @@ def format_charge_operation(value, opcodes, selected_operation, labels, log_inte
     try:
         opcode = opcodes[formatted]
     except:
-        log_interface(f"WARNING: invalid operation: {formatted}", color = "#ff0000")
+        log_interface(f"WARNING: invalid operation: {formatted} from {selected_operation}", color = "#ff0000")
         return None
     lit = str(bin(value))[2:]
     lit = f"{"0"*(16-len(lit))}{lit}"
