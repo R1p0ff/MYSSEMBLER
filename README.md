@@ -1,4 +1,4 @@
-# Myssembler
+# Myssembler (Desactualizado)
 
 ### **¿Que es Myssembler?**
 
@@ -29,11 +29,9 @@ My
 
 ![alt text](image/tabla_de_bits.png)
 
-### asdewqqweasdqweqweqewqweqweqewqasdasdqweqweasdasdqwe
-
+###
 ![alt text](image/tabla_de_operaciones.png)
 
-asdewqqweasdqweqweqewqweqweqewqasdasdqweqwea
 
 ### Diagrama de Hardware (Assembly)
 
