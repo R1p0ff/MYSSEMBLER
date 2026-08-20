@@ -12,8 +12,7 @@ def clean_comments_code_line(code_line):
 
 def format_code_line(code_line):
     code_line = clean_comments_code_line(code_line)
-    code_line = " ".join(code_line.strip().split())
-    code_line = code_line.split()
+    code_line = code_line.strip().split()
     if len(code_line) != 0:
         return code_line[0], "".join(code_line[1:])
 
@@ -138,7 +137,11 @@ def operation(code_line, code_labels, log_interface):
                 return None
 
         elif (variable in code_labels):
-            variable_mapping.append("DIR")
+            dir_operations = ["JEQ", "JNE", "JGT", "JGE", "JLT", "JLE", "JCR", "JMP", "CALL"]
+            if operation not in dir_operations:
+                variable_mapping.append("LIT")
+            else:
+                variable_mapping.append("DIR")
 
         else:
             variable_mapping.append(variable)
@@ -164,7 +167,7 @@ def format_charge_operation(value, opcodes, selected_operation, labels, log_inte
     try:
         opcode = opcodes[formatted]
     except:
-        log_interface(f"WARNING: invalid operation: {formatted} from {selected_operation}", color = "#ff0000")
+        log_interface(f"WARNING: invalid operation: {formatted}", color = "#ff0000")
         return None
     lit = str(bin(value))[2:]
     lit = f"{"0"*(16-len(lit))}{lit}"
@@ -284,18 +287,7 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
             i+=1
 
             active_operation = operation_extractor(code_line)
-            if active_operation in ["RET", "POP"]:
 
-                filling_binary_address = str(bin(int(i)))[2:]
-                filling_binary_address = f"{"0"*(12-len(filling_binary_address))}{filling_binary_address}"
-                filling_lit = "0"*16
-                filling_opcode = "0"*20
-                addressed_filling_opcode = f"{filling_binary_address}{filling_lit}{filling_opcode}"
-                filling_addressed_hex = hex_converter(addressed_filling_opcode, log_interface)
-
-                columns.append([f"({i})" ,f"{active_operation} FILL", "FILLING", f"{filling_binary_address}", f"{filling_lit}", f"{filling_opcode}", " ".join(filling_addressed_hex)])
-                
-                i+=1
 
     return columns, code_opcodes_hexadecimals
 
@@ -304,9 +296,16 @@ def instruction(code_input, selected_isa, log_interface):
     found_labels = []
     line_counter = 0
     clean_input = []
+
+
+
     for line in code_input:
         if clean_comments_code_line(line):
+            line_operation = operation_extractor(line)
+            if line_operation == "POP" or line_operation == "RET":
+                clean_input.append("DEC SP")
             clean_input.append(clean_comments_code_line(line))
+            
     code_input = clean_input
     labels, code_position = dir_register(code_input, log_interface)
 
