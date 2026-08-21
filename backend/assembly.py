@@ -199,9 +199,9 @@ def encode_load_operation(value, opcodes, selected_operation, labels, log_interf
 
     return opcode, lit
 
+#? Formats the complete instruction binary word by combining the ROM address, literal, and opcode, then converts it to hex.
 def addressing(i, lit, opcode, log_interface):
-    binary_address = str(bin(int(i)))[2:]
-    binary_address = f"{"0"*(12-len(binary_address))}{binary_address}"
+    binary_address = bin(int(i))[2:].zfill(12)
     addressed_opcode = f"{binary_address}{lit}{opcode}"
     addressed_hex = hex_converter(addressed_opcode, log_interface)
     return binary_address, addressed_opcode, addressed_hex
