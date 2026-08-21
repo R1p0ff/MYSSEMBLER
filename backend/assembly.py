@@ -53,7 +53,7 @@ def ret_pop_checker(code_line):
     else:
         return 1
 
-
+#? Checks for variables and labels, assigning their memory directions.
 def dir_register(code_data, log_interface):
     data_headers = 0
     code_headers = 0
@@ -112,7 +112,10 @@ def dir_register(code_data, log_interface):
     
     return labels, code_label_line
 
+#? Identifies whether a given line is a Header, a Label, or an Operation.
 def identify_procedure(code_line):
+    #** This approach can detect invalid lines as operations, however,
+    #** subsequent processing steps detect that the "operation" is invalid.
     identified_procedure = None
     regex_assembly = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
 
@@ -126,9 +129,14 @@ def identify_procedure(code_line):
         identified_procedure = "Operation"
     return identified_procedure
 
+#? Identifies the opcode key of an operation.
 def operation(code_line, code_labels, log_interface):
     operation, variables = format_code_line(code_line)
-    variables = variables.split(",")[:max_variables_assembly[operation]]    
+    try:
+        variables = variables.split(",")[:max_variables_assembly[operation]]    
+    except:
+        log_interface(f"WARNING: invalid operation: {operation}", color = "#ff0000")
+        raise ValueError(f"WARNING: invalid operation: {operation}")
 
     if max_variables_assembly[operation] == 0:
         return operation
@@ -167,6 +175,7 @@ def operation(code_line, code_labels, log_interface):
     log_interface(f"Mapped operation to key {operation} {variable_mapping}", color="#2cde85")
     return f"{operation} {variable_mapping}"
 
+#TODO
 def hex_converter(litopcode, log_interface):
     opcode_bytes = [litopcode[:8], litopcode[8:16],litopcode[16:24], litopcode[24:32], litopcode[32:40], litopcode[40:48]]
     hex_bytes = []
@@ -177,15 +186,17 @@ def hex_converter(litopcode, log_interface):
     log_interface(f"Created hex ({" ".join(hex_bytes)}) for operation {litopcode}", color="#2B885A")
     return hex_bytes
 
-def format_charge_operation(value, opcodes, selected_operation, labels, log_interface):
+#? Encodes a data load operation, resolves its opcode, and converts the value to a 16-bit binary literal.
+def encode_load_operation(value, opcodes, selected_operation, labels, log_interface):
     formatted = operation(selected_operation, labels, log_interface)
     try:
         opcode = opcodes[formatted]
     except:
         log_interface(f"WARNING: invalid operation: {formatted}", color = "#ff0000")
-        return None
-    lit = str(bin(value))[2:]
-    lit = f"{"0"*(16-len(lit))}{lit}"
+        raise ValueError(f"WARNING: invalid operation: {formatted}")
+
+    lit = bin(value)[2:].zfill(16)
+
     return opcode, lit
 
 def addressing(i, lit, opcode, log_interface):
@@ -215,7 +226,7 @@ def data_instructions(data_lines, labels, opcodes, log_interface):
             value = int(value.strip())
             operations = [f"MOV A,{value}", f"MOV (DIR),A"]
             
-            opcode, lit = format_charge_operation(value, opcodes, operations[0], labels, log_interface)
+            opcode, lit = encode_load_operation(value, opcodes, operations[0], labels, log_interface)
             if lit == None:
                 break
             binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
@@ -224,7 +235,7 @@ def data_instructions(data_lines, labels, opcodes, log_interface):
             i+=1
             
 
-            opcode, lit = format_charge_operation(direction, opcodes, operations[1], labels, log_interface)
+            opcode, lit = encode_load_operation(direction, opcodes, operations[1], labels, log_interface)
             binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
             formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
             charge_opcodes.append([f"({i})", "WRITING", formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
@@ -256,9 +267,9 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
                 opcode = opcodes[formatted]
             except:
                 log_interface(f"WARNING: invalid operation: {formatted}", color = "#b70000")
-                return None
+                raise ValueError(f"WARNING: invalid operation: {formatted}")
 
-            operation_data, variables = format_code_line(code_line)
+            _, variables = format_code_line(code_line)
             
             variables = variables.split(",")
             lit = "0"*16
