@@ -93,6 +93,9 @@ def dir_register(code_data, log_interface):
                     code_dir_counter += ret_pop_checker(clean_label[1])
             
             else:
+                if not bool(re.search(assembly_operations_regex, code_line)):
+                    log_interface(f"ERROR: Invalid line or instruction", color="#b70000")
+                    raise ValueError(f"Sintaxis error: Invalid line or instruction {code_line}")
                 code_dir_counter += ret_pop_checker(code_line)
 
         elif ((data_headers == 1) and (code_headers == 0)):
@@ -109,15 +112,11 @@ def dir_register(code_data, log_interface):
     
     return labels, code_label_line
 
-def identify_procedure(code_line, code_language):
+def identify_procedure(code_line):
     identified_procedure = None
     regex_assembly = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
-    regex_riscv = [assembly_headers_regex, assembly_labels_regex, assembly_operations_regex]
 
-    if code_language == "RISCV":
-        regex = regex_riscv
-    elif code_language == "ASSEMBLY":
-        regex = regex_assembly
+    regex = regex_assembly
 
     if (re.match(regex[0], code_line)):
         identified_procedure = "Header"
@@ -245,7 +244,7 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
         code_line = code_line.strip()
         if not format_code_line(code_line):
             continue
-        procedure = identify_procedure(code_line, "ASSEMBLY")
+        procedure = identify_procedure(code_line)
         if procedure is None:
             continue
 
@@ -349,10 +348,5 @@ def instruction(code_input, selected_isa, log_interface):
     #print(result_table)
 
     return result_table, hexadecimals
-
-# TEST RISCV
-#identified_procedure = re.match(regex_))
-#identified_procedure = re.match(regex_))
-#identified_procedure = re.match(regex_))
 
 
