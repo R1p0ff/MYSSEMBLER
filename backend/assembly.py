@@ -214,36 +214,46 @@ def data_instructions(data_lines, labels, opcodes, log_interface):
     charge_opcodes = []
     charge_opcodes_hexadecimals = []
     for code_line in data_lines:
-        if not clean_comments_code_line(code_line).strip():
-            label, value = format_code_line(code_line)
-            if not value:
-                continue
-        if not (bool(re.search(assembly_data_header_regex, code_line))):
-            label, value = format_code_line(code_line)
-            if not value.isnumeric():
-                log_interface("WARNING: invalid headers", color = "#ff0000")
+        #** Ignore empty lines
+        cleaned = clean_comments_code_line(code_line).strip()
+        if not cleaned:
+            continue
 
+        #** Ignore data header lines
+        if bool(re.search(assembly_data_header_regex, code_line)):
+            continue
+
+        label, value = format_code_line(code_line)
+        if not value.strip().isnumeric():
+            log_interface("WARNING: invalid data value", color="#ff0000")
+
+        try:
             value = int(value.strip())
-            operations = [f"MOV A,{value}", f"MOV (DIR),A"]
-            
-            opcode, lit = encode_load_operation(value, opcodes, operations[0], labels, log_interface)
-            if lit == None:
-                break
-            binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
-            formatted_operation = operation(" ".join(format_code_line(operations[0])), labels, log_interface)
-            charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
-            i+=1
-            
+        except ValueError:
+            log_interface(f"ERROR: Invalid numeric value for variable {label}", color="#b70000")
+            raise ValueError(f"Invalid data value: {value}")
 
-            opcode, lit = encode_load_operation(direction, opcodes, operations[1], labels, log_interface)
-            binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
-            formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
-            charge_opcodes.append([f"({i})", "WRITING", formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
-            i+=1
+        operations = [f"MOV A,{value}", f"MOV (DIR),A"]
+        
+        opcode, lit = encode_load_operation(value, opcodes, operations[0], labels, log_interface)
+        if lit == None:
+            break
+        binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
+        formatted_operation = operation(" ".join(format_code_line(operations[0])), labels, log_interface)
+        charge_opcodes.append([f"({i})", operations[0], formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+        charge_opcodes_hexadecimals.append(addressed_hex)
+        i+=1
+        
+        opcode, lit = encode_load_operation(direction, opcodes, operations[1], labels, log_interface)
+        binary_address, addressed_opcode, addressed_hex = addressing(i, lit, opcode, log_interface)            
+        formatted_operation = operation(" ".join(format_code_line(operations[1])), labels, log_interface)
+        charge_opcodes.append([f"({i})", "WRITING", formatted_operation, f"{binary_address}", f"{lit}", f"{opcode}", " ".join(addressed_hex)])
+        charge_opcodes_hexadecimals.append(addressed_hex)
+        i+=1
 
-            data_labels.append(label)
-            necessary_instructions+=2
-            direction+=1
+        data_labels.append(label)
+        necessary_instructions+=2
+        direction+=1
 
     return charge_opcodes, charge_opcodes_hexadecimals, necessary_instructions, data_labels, i
 
