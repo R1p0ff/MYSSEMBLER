@@ -6,7 +6,7 @@ l4br4t/
 test/
 backend/craftssembly.py
 backend/test_assembly.py
-
+tests
 
 
 # Byte-compiled / optimized / DLL files

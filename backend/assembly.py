@@ -4,42 +4,55 @@ from tabulate import tabulate
 import re
 
 
+#? Remove comments from the lines, starting from the first detected semicolon.
 def clean_comments_code_line(code_line):
     if ";" in code_line:
-        code_line = code_line.split(";")
-        code_line = code_line[0]
+        code_line = code_line.split(";")[0]
     return code_line
 
+#? Format the lines by removing comments and separating the operation from the arguments.
 def format_code_line(code_line):
     code_line = clean_comments_code_line(code_line)
     code_line = code_line.strip().split()
     if len(code_line) != 0:
         return code_line[0], "".join(code_line[1:])
 
+#? Cleans labels of extra characters and checks syntax rules.
 def label_cleaner(label):
-    label = label.replace(":", "")
     label = label.replace(" ", "")
+
+    if label.count(":") > 1:
+        raise ValueError(f"Sintaxis error: Label '{label}' has to many ':'")
+    
+    if not label.endswith(":"):
+        raise ValueError(f"Sintaxis error: Label '{label}' must end with ':'")
+
+    label = label.replace(":", "")
+
     return label
 
+#? Extract the variable names in DataSegment.
 def variable_name_cleaner(variable):
-    variable = re.sub(' +', ' ', variable.strip())
-    variable = variable.split(" ")
+    if not isinstance(variable, str):
+        raise TypeError(f"Se esperaba texto, pero se recibió: {type(variable)}")
+    variable = variable.split()
+    if len(variable) == 0:
+        raise ValueError("Error: Tried to read empty line.")
     return variable[0]
 
-def operation_extractor(code_line):
-    operation, variables = format_code_line(code_line)
-    return operation
-
+#? Checks whether the operation is RET or POP to calculate the required cycles.
 def ret_pop_checker(code_line):
     operation = None
     if clean_comments_code_line(code_line):
-        operation = operation_extractor(code_line)
+        formated = format_code_line(code_line)
+        operation = formated[0] if formated else None
     if operation == "RET" or operation == "POP":
         return 2
     elif operation == None:
         return 0
     else:
         return 1
+
 
 def dir_register(code_data, log_interface):
     data_headers = 0
@@ -70,8 +83,11 @@ def dir_register(code_data, log_interface):
             is_line_label = (bool(re.search(assembly_labels_regex, code_line)))
             
             if is_line_label:
-                labels[label_cleaner(code_line)] = code_dir_counter
-                
+                try:
+                    labels[label_cleaner(code_line)] = code_dir_counter
+                except ValueError as error_msg:
+                    log_interface(f"ERROR: {str(error_msg)}", color="#b70000")
+                    raise ValueError(error_msg)
                 clean_label = code_line.split(":")
                 if len(clean_label) > 1 and clean_label[1].strip():
                     code_dir_counter += ret_pop_checker(clean_label[1])
@@ -89,7 +105,7 @@ def dir_register(code_data, log_interface):
     if (data_headers != 1 or code_headers != 1):
         # (LOG)
         log_interface("WARNING: invalid headers", color = "#b70000")
-        exit()
+        raise ValueError("Invalid headers: No data or code headers.")
     
     return labels, code_label_line
 
@@ -286,8 +302,8 @@ def code_instructions(code_lines, labels, opcodes, log_interface,charge_cost = 0
             
             i+=1
 
-            active_operation = operation_extractor(code_line)
-
+            active_operation = format_code_line(code_line)
+            active_operation = active_operation[0] if active_operation else None
 
     return columns, code_opcodes_hexadecimals
 
@@ -301,7 +317,9 @@ def instruction(code_input, selected_isa, log_interface):
 
     for line in code_input:
         if clean_comments_code_line(line):
-            line_operation = operation_extractor(line)
+            line_operation = format_code_line(line)
+            line_operation = line_operation[0] if line_operation else None
+
             if line_operation == "POP" or line_operation == "RET":
                 clean_input.append("DEC SP")
             clean_input.append(clean_comments_code_line(line))
@@ -328,7 +346,7 @@ def instruction(code_input, selected_isa, log_interface):
     headers = ["#","Original", "Formatted", "ROM Address", "LIT", "Opcode", "HEX"]
     table_rows = table_data+table_codes
     result_table = tabulate(table_rows, headers)
-    print(result_table)
+    #print(result_table)
 
     return result_table, hexadecimals
 
