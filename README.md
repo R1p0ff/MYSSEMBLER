@@ -1,44 +1,37 @@
 # Myssembler (Desactualizado)
 
-### **¿Que es Myssembler?**
+### **¿Qué es MYSSEMBLER?**
 
-Myssembler es un ensamblador customizado para un computador basico revisado en el ramo Arquitectura de Computadores IIC2343 de la Pontificia universidad de Chile. Este fue programado con VDHL en la plataforma de Vivado y cargado en una Basys 3 con arquitectura Artix 7.
+MYSSEMBLER es un ensamblador personalizado diseñado para el computador básico del ramo **Arquitectura de Computadores (IIC2343)** de la Pontificia Universidad Católica de Chile. El hardware está programado en VHDL en la plataforma Vivado y diseñado para ser cargado en una tarjeta Basys 3 con arquitectura Artix-7. Este proyecto tiene un fin meramente investigativo, de práctica y estudio de la materia.
 
-Este proyecto tiene un fin meramente investigativo, de practica y estudio de la materia.
+### **¿Qué hace MYSSEMBLER?**
 
-### **¿Que hace Myssembler?**
+Se encarga de traducir código en lenguaje ensamblador a los OPCODES compatibles con la arquitectura del computador básico. Soporta exclusivamente las especificaciones y estructuras orientadas al curso, incluyendo la interfaz gráfica de usuario en PySide6 con soporte de pestañas, resaltado de sintaxis, consola de registros/logs y selección de arquitecturas ISA e interfaces seriales.
 
-Se encarga de traducir a OPCODES compatibles con la arquitectura del computador basico codigo basico assembly de dos tipos:
+### **Estructura y Características Principales**
 
-* Estructura de codigo propietario para un computador basico
-* RISC 5
+* **Interfaz Gráfica (GUI):** Desarrollada con PySide6, incluye una consola de entrada de código con autoidentación y resaltador de sintaxis personalizado para las instrucciones, pestañas de navegación (`Assembler`, `Opcodes`, `ISA`), y una consola de logs integrada.
+* **Selectores de ISA y Puertos:** Selector dinámico de arquitectura ISA y selector de puertos serie (COM/TTY) utilizando la librería `serial` para la conexión de hardware.
+* **Importación de Archivos:** Permite importar archivos de código fuente directamente mediante un botón dedicado para cargarlos en la consola de edición.
+* **Traducción de Opcodes:** Conversión de ensamblador a las secuencias de bits y códigos de operación definidos para el computador básico.
 
-Para esto se presenta un selector
+### **Traducción a Opcodes y Hardware**
 
-* a OPCODE y un método secreto Craftssembly.
+#### Código Propietario:
 
-### **Estructura de Myssembly**
-
-My
-
-## Escritura de Codigo
-
-## Traduccion a Opcodes
-
-### Codigo Propietario:
+* **Tabla de Bits:**
 
 ![alt text](image/tabla_de_bits.png)
 
-###
+* **Tabla de Operaciones:**
+
 ![alt text](image/tabla_de_operaciones.png)
 
-
-### Diagrama de Hardware (Assembly)
+* **Diagrama de Hardware (Assembly):**
 
 ![alt text](image/diagrama_computador_basico_assembly.png)
 
-Programador computador basico:
-
+* **Programador computador basico:**
 
 ```vhdl
 library IEEE;
@@ -144,7 +137,7 @@ data_prosses: process (rx_enable)
                 state <= "10110";   
             elsif ( state = "10110" ) then
                 memory(5) <= rx_data;
-                state <= "10111";          
+                state <= "10111";  
             elsif ( state = "10111" and rx_data = "10101010" ) then
                 state <= "00000";
                 ready_sinc <= '1';
@@ -169,10 +162,17 @@ inst_UART: UART port map(
     );   
 
 end Behavioral;
-
 ```
 
 
-```vdhl
 
-```
+### **Dependencias del Proyecto**
+
+Para ejecutar y compilar MYSSEMBLER de manera local, se requieren los siguientes paquetes y librerías de Python:
+
+* **PySide6** : Framework de interfaz gráfica de usuario.
+* **pyserial** : Comunicación serial con puertos COM/TTY para programar la tarjeta física.
+* **tabulate** : Generación de tablas formateadas en texto (utilizada para visualizar la consola de ISA).
+* **PyInstaller** : Utilizado para la compilación y empaquetado del proyecto en un binario ejecutable independiente.
+
+Además se añade el ejecutable MYSSEMBLER para linux y MYSSEMBLER.exe para windows

@@ -124,6 +124,5 @@ max_variables_assembly = {
 }
 
 
-ISAs = {"Assembly basic computer" : opcodes_assembly, "RISC V" : ["", ""]}
-#, "CRAFTSSEMBLY" : ["", ""]}
+ISAs = {"Assembly basic computer" : opcodes_assembly}
 operations_assembly = ["MOV", "CMP", "JEQ", "JMP", "INC", "ADD", "SUB"]

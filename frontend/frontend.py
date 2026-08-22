@@ -49,7 +49,7 @@ class AssemblerHighlighter(QSyntaxHighlighter):
         for operation in operations:
             operation_regex = QRegularExpression(f"\\b{operation}\\b")
             self.rules.append((operation_regex, self.opcodes_format))
-        comment_regex = QRegularExpression(";.*")
+        comment_regex = QRegularExpression(";(.*)|//(.*)")
         self.rules.append((comment_regex, self.comments_format))
         self.rehighlight()
     
@@ -117,7 +117,7 @@ def create_window(ISAs):
     window_w = 1800
     window_h = 1000
     w.resize(window_w, window_h)
-    w.setWindowTitle("PySide6 Application")
+    w.setWindowTitle("MYSSEMBLER")
 
 
     # Widgets
@@ -182,10 +182,6 @@ def create_window(ISAs):
     opcodes_console.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
     opcodes_console.setFont(main_console_font)
 
-    # Craftssembly
-    craftssembly_console = QtWidgets.QPlainTextEdit()
-    craftssembly_console.setFont(main_console_font)
-
     # ISA
     isa_console = QtWidgets.QPlainTextEdit(readOnly=True)
 
@@ -199,7 +195,6 @@ def create_window(ISAs):
     
     tab_manager.addTab(input_console, "Assembler")
     tab_manager.addTab(opcodes_console, "Opcodes")
-    tab_manager.addTab(craftssembly_console, "Craftsembler")
     tab_manager.addTab(isa_console, "ISA")
 
     # Add widgets to the layout

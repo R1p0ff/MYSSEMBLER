@@ -42,10 +42,13 @@ QPushButton:pressed {
   color: #b0b0b0;
 }
 
+
+
 #btnImportFile {
   margin-right: 50px;
   max-width: 220px;
 }
+
 #btnAssemble {
   width: 200px;
 }
