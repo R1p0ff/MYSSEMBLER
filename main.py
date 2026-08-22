@@ -2,6 +2,7 @@ import sys
 import os
 from PySide6 import QtWidgets
 from PySide6.QtGui import QFontDatabase
+from PySide6.QtWidgets import QFileDialog
 from frontend.frontend import create_window, post_results, post_isa, post_log
 from backend.opcodes_maps.opcodes import ISAs
 from backend.opcodes_maps.default import default_code
@@ -52,8 +53,27 @@ if __name__ == "__main__":
         assembly_table, last_assembly_hex = instruction(process_text(input_console.toPlainText().splitlines()), ISA_selector.currentText().strip(), log_interface)
         post_results(assembly_table, opcodes_console, delete=True)
         return last_assembly_hex
+
+
+    def import_file_function():
+        file_name, _ = QFileDialog.getOpenFileName(
+            w, 
+            "Import source code file", 
+            "", 
+            "Assembly files (*.suasm);;All files (*.*)"
+        )
+        
+        if file_name:
+            try:
+                with open(file_name, "r", encoding="utf-8") as f:
+                    file_content = f.read()
+                    input_console.setPlainText(file_content)
+                    log_interface(f"OK: Imported file {file_name}", color="#2cde85")
+            except Exception as e:
+                log_interface(f"ERROR: Couldn't open file: {e}", color="#ff5555")
+
     
-    
+    button_file.clicked.connect(import_file_function)
     button_assemble.clicked.connect(assembly_function)
     button_program.clicked.connect(lambda: programmer(port = f"{PORT_selector.currentText().strip()}", hex_bytes = last_assembly_hex, log_interface = log_interface))
 
